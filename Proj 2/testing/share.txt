@@ -1,0 +1,547 @@
+
+Q1:
+Names:
+
+	(Local Group): 	Tyler Smith, Andrew Donovan, Eric Schurr, Robert Eisner, Taylor Smith
+
+	Team 19: 		David Webster, Jeremy Beihn, Andrew Fahmy
+
+	Team 5: 		Paul Boyechko, Andrew Flanery, Haley Hannan, Aaron Mullen, Travis Nilest
+
+Q2:
+
+To work on denoting the duplicate records all the database data was imported into excel and a new column was created. The column called 'dupe_record' was then filled with a 0 or 1 indicated either that this was the first time a record had been seen or if the record was a duplicate. Along with the general schema of the ID number being a uniuqe number and this new flag cloumun the import went smoothly.
+
+This was done via a nice website called https://sqlizer.io/ that converts excel tables into sql commands.
+
+Commands:
+
+	Setup:
+
+		CREATE TABLE IF NOT EXISTS proj2_database (
+	    `ID` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+	    `First_Name` VARCHAR(11) CHARACTER SET utf8,
+	    `Last_Name` VARCHAR(16) CHARACTER SET utf8,
+	    `Full_Customer_Name` VARCHAR(26) CHARACTER SET utf8,
+	    `Address_Line_1` VARCHAR(29) CHARACTER SET utf8,
+	    `Address_Line_2` VARCHAR(26) CHARACTER SET utf8,
+	    `City` VARCHAR(16) CHARACTER SET utf8,
+	    `State` VARCHAR(20) CHARACTER SET utf8,
+	    `Zip_code` INT,
+	    `Phone_number` VARCHAR(12) CHARACTER SET utf8,
+	    `dupe_record` INT
+		);
+
+	Insert (selection from the 117 total records {Duplicates are Ray Hyatt Jr. and John Wick} {Non-duplicated are Courtney Warner and Tina Holland}):
+
+		INSERT INTO proj2_database VALUES
+
+    		(1,'Ray','Hyatt Jr.','Mr. Ray L. Hyatt Jr.','300 Rose Street','Room 102 Hardymon Building','Lexington','Kentucky',40506,NULL,0)
+
+    		(2,'John','Wick','John Wick','82 Beaver St','Room 1301 ','New York','New York',10005,'555-555-5555',0),
+
+
+    		(40,'Ray','Hyatt Jr.','Mr. Ray L. Hyatt Jr.','300 Rose Street','Room 102 Hardymon Building','Lexington','Kentucky',40506,NULL,1),
+    		
+    		(41,'John','Wick','John Wick','82 Beaver St ','Room 1301','New York','New York',10005,'555-555-5555',1),
+
+
+    		(76,'Tina','Holland','Tina Holland','12250 NE Greco Dr.',NULL,'Orlando','Florida',32824,'407-944-3542',0),
+    		
+    		(77,'Courtney','Warner','Courtney Warner','2240 Hillshire Dr.',NULL,'Orlando','Florida',32828,'407-653-4494',0),
+
+		
+
+Q3:
+
+Commands:
+
+	show tables;
+	+----------------------------+
+	| Tables_in_amdo257          |
+	+----------------------------+
+	| bq1                        |
+	| bq1_prep                   |
+	| bq2                        |
+	| bq2_alt                    |
+	| bq3                        |
+	| bq3_alt                    |
+	| customer_database_proj1    |
+	| customer_database_proj1_d6 |
+	| proj2_database             |
+	+----------------------------+
+	9 rows in set (0.00 sec)
+
+	select * from proj2_database;
+		+-----+-------------+------------------+----------------------------+-------------------------------+----------------------------+------------------+----------------------+----------+--------------+-------------+
+		| ID  | First_Name  | Last_Name        | Full_Customer_Name         | Address_Line_1                | Address_Line_2             | City             | State                | Zip_code | Phone_number | dupe_record |
+		+-----+-------------+------------------+----------------------------+-------------------------------+----------------------------+------------------+----------------------+----------+--------------+-------------+
+		|   1 | Ray         | Hyatt Jr.        | Mr. Ray L. Hyatt Jr.       | 300 Rose Street               | Room 102 Hardymon Building | Lexington        | Kentucky             |    40506 | NULL         |           0 |
+		|   2 | John        | Wick             | John Wick                  | 82 Beaver St                  | Room 1301                  | New York         | New York             |    10005 | 555-555-5555 |           0 |
+		|   3 | Tony        | Stark            | Tony Stark                 | 200 Park Avenue               | Penthouse                  | New York         | New York             |    10001 | 555-555-3142 |           0 |
+		|   4 | Stephen     | Strange          | Dr. Stephen Strange        | 117A Bleecker Street          | NULL                       | New York         | New York             |    10001 | 555-555-4321 |           0 |
+		|   5 | Bob         | Smith            | Bob C. Smith               | 200 Park Avenue               | Apartment 221              | New York         | New York             |    10001 | NULL         |           0 |
+		|   6 | Bowman      | Wildcat          | Bowman F. Wildcat          | One Avenue of Champions       | NULL                       | Lexington        | Kentucky             |    40506 | NULL         |           0 |
+		|   7 | Bob         | Smith            | Bob C. Smith               | 200 Park Avenue               | NULL                       | Lexington        | Kentucky             |    40507 | NULL         |           0 |
+		|   8 | Bob         | Porter           | Bob Porter                 | 1 Dead end Row                | Room 200                   | Dallas           | Texas                |    12347 | NULL         |           0 |
+		|   9 | Bob         | Sydell           | Mr. Bob Sydell             | 1 Dead end Row                | Room 200                   | Dallas           | Texas                |    12347 | NULL         |           0 |
+		|  10 | Ronald      | Hembery          | Ronald Hembery             | 36557 Springs Alley           | NULL                       | Sacramento       | California           |    95813 | 916-575-8695 |           0 |
+		|  11 | Jonathan    | Dowdney          | Jonathan Dowdney           | 70 Luster Pass                | NULL                       | Topeka           | Kansas               |    66622 | 785-313-8159 |           0 |
+		|  12 | Demetra     | Cobbald          | Demetra Cobbald            | 28 Cherokee Drive             | NULL                       | Abilene          | Texas                |    79699 | 325-319-0457 |           0 |
+		|  13 | Fraser      | Toombs           | Fraser Toombs              | 87964 Russell Way             | NULL                       | Colorado Springs | Colorado             |    80951 | 719-791-7477 |           0 |
+		|  14 | Cleve       | Sieghart         | Cleve Sieghart             | 69 Fremont Court              | NULL                       | Las Cruces       | New Mexico           |    88006 | 505-573-6996 |           0 |
+		|  15 | Enriqueta   | Duncanson        | Enriqueta Duncanson        | 15791 Welch Avenue            | NULL                       | San Francisco    | California           |    94164 | 415-401-3991 |           0 |
+		|  16 | Claribel    | Giraudat         | Claribel Giraudat          | 2124 Cottonwood Center        | NULL                       | Columbia         | South Carolina       |    29203 | 803-812-1116 |           0 |
+		|  17 | Allison     | Gooke            | Allison Gooke              | 7456 Kings Circle             | NULL                       | Washington       | District of Columbia |    20380 | 202-716-0682 |           0 |
+		|  18 | Aubrey      | Skamell          | Aubrey Skamell             | 740 Forest Run Drive          | NULL                       | Riverside        | California           |    92519 | 951-951-6384 |           0 |
+		|  19 | Danny       | Bowlesworth      | Danny Bowlesworth          | 9 Merrick Pass                | NULL                       | Columbus         | Mississippi          |    39705 | 662-845-8764 |           0 |
+		|  20 | Irena       | Devil            | Irena Devil                | 0 8th Alley                   | NULL                       | San Francisco    | California           |    94177 | 415-641-9836 |           0 |
+		|  21 | Mary        | Griffen          | Mary Griffen               | 798 Stephen Crossing          | NULL                       | Decatur          | Georgia              |    30089 | 678-694-7833 |           0 |
+		|  22 | Deane       | Beaument         | Deane Beaument             | 87 Clyde Gallagher Trail      | NULL                       | Spokane          | Washington           |    99210 | 509-401-0161 |           0 |
+		|  23 | Micheil     | Gooderridge      | Micheil Gooderridge        | 3753 Jenifer Drive            | NULL                       | Chicago          | Illinois             |    60636 | 312-197-0126 |           0 |
+		|  24 | Janith      | Bendall          | Janith Bendall             | 8 Namekagon Alley             | NULL                       | Trenton          | New Jersey           |     8650 | 609-483-7845 |           0 |
+		|  25 | Hallsy      | Guichard         | Hallsy Guichard            | 07174 Calypso Point           | NULL                       | Reno             | Nevada               |    89505 | 775-544-0972 |           0 |
+		|  26 | Beverlee    | Botting          | Beverlee Botting           | 6 Artisan Way                 | NULL                       | Reno             | Nevada               |    89519 | 775-701-2166 |           0 |
+		|  27 | Davy        | Hudleston        | Davy Hudleston             | 48 Kenwood Street             | NULL                       | Houston          | Texas                |    77266 | 832-609-1679 |           0 |
+		|  28 | Hewie       | Stood            | Hewie Stood                | 36670 Porter Place            | NULL                       | Peoria           | Illinois             |    61640 | 309-337-5622 |           0 |
+		|  29 | Spenser     | Ackroyd          | Spenser Ackroyd            | 55 Sherman Court              | NULL                       | Richmond         | Virginia             |    23237 | 804-431-8071 |           0 |
+		|  30 | Valenka     | Robertsson       | Valenka Robertsson         | 64147 Fieldstone Plaza        | NULL                       | Corpus Christi   | Texas                |    78465 | 361-405-1652 |           0 |
+		|  31 | Reese       | Richly           | Reese Richly               | 0258 John Wall Crossing       | NULL                       | Portsmouth       | New Hampshire        |     3804 | 603-631-5102 |           0 |
+		|  32 | Sacha       | Cardoe           | Sacha Cardoe               | 30447 Graedel Avenue          | NULL                       | Mansfield        | Ohio                 |    44905 | 419-714-4308 |           0 |
+		|  33 | Melonie     | Poynor           | Melonie Poynor             | 041 Badeau Center             | NULL                       | San Jose         | California           |    95133 | 408-271-7876 |           0 |
+		|  34 | Siegfried   | Krolak           | Siegfried Krolak           | 0 Maple Court                 | NULL                       | Austin           | Texas                |    78710 | 512-892-3546 |           0 |
+		|  35 | Lila        | Teml             | Lila Teml                  | 55 Straubel Lane              | NULL                       | Lake Charles     | Louisiana            |    70616 | 337-851-4885 |           0 |
+		|  36 | Hobard      | Western          | Hobard Western             | 84 Northview Plaza            | NULL                       | Des Moines       | Iowa                 |    50335 | 515-959-1132 |           0 |
+		|  37 | Constantine | Enefer           | Constantine Enefer         | 92 Rockefeller Circle         | NULL                       | New York         | New York             |    10001 | 212-710-9594 |           0 |
+		|  38 | Frank       | Heinel           | Frank Heinel               | 543 Delaware Circle           | NULL                       | Portsmouth       | New Hampshire        |     3804 | 603-663-6413 |           0 |
+		|  39 | Marni       | Risom            | Marni Risom                | 80151 Bartelt Avenue          | NULL                       | El Paso          | Texas                |    88574 | 915-283-0722 |           0 |
+		|  40 | Ray         | Hyatt Jr.        | Mr. Ray L. Hyatt Jr.       | 300 Rose Street               | Room 102 Hardymon Building | Lexington        | Kentucky             |    40506 | NULL         |           1 |
+		|  41 | John        | Wick             | John Wick                  | 82 Beaver St                  | Room 1301                  | New York         | New York             |    10005 | 555-555-5555 |           1 |
+		|  42 | Tony        | Stark            | Tony Stark                 | 200 Park Avenue               | Penthouse                  | New York         | New York             |    10001 | 555-555-3142 |           1 |
+		|  43 | Stephen     | Strange          | Dr. Stephen Strange        | 117A Bleecker Street          | NULL                       | New York         | New York             |    10001 | 555-555-4321 |           1 |
+		|  44 | Bob         | Smith            | Bob C. Smith               | 200 Park Avenue               | Apartment 221              | New York         | New York             |    10001 | NULL         |           1 |
+		|  45 | Bowman      | Wildcat          | Bowman F. Wildcat          | One Avenue of Champions       | NULL                       | Lexington        | Kentucky             |    40506 | NULL         |           1 |
+		|  46 | Bob         | Smith            | Bob C. Smith               | 200 Park Avenue               | NULL                       | Lexington        | Kentucky             |    40507 | NULL         |           1 |
+		|  47 | Bob         | Porter           | Bob Porter                 | 1 Dead end Row                | Room 200                   | Dallas           | Texas                |    12347 | NULL         |           1 |
+		|  48 | Bob         | Sydell           | Mr. Bob Sydell             | 1 Dead end Row                | Room 200                   | Dallas           | Texas                |    12347 | NULL         |           1 |
+		|  49 | Jamie       | Grkinich         | Jamie Grkinich             | 554 S Casita Street           | NULL                       | Anaheim          | California           |    92805 | 714-128-2412 |           0 |
+		|  50 | Mary        | Roberts          | Mary Roberts               | 175 S Rio Vista Street        | Apt 61                     | Anaheim          | California           |    92806 | 714-675-4455 |           0 |
+		|  51 | Jay         | Cheng            | Jay Cheng                  | 618 S Ohio Street             | NULL                       | Anaheim          | California           |    92805 | 714-435-3678 |           0 |
+		|  52 | Mark        | Wilson           | Mark Scott Wilson          | 916 S Sutter Creek Road       | NULL                       | Anaheim          | California           |    92804 | 714-998-0987 |           0 |
+		|  53 | Liza        | Adams            | Liza Adams                 | 1011 N Gilbert Street         | NULL                       | Anaheim          | California           |    92801 | 714-885-6789 |           0 |
+		|  54 | Trenton     | Mueller          | Trenton Foster Mueller     | 255 N Anaheim Blvd            | NULL                       | Anaheim          | California           |    92805 | 714-123-1579 |           0 |
+		|  55 | Veronica    | Frazier          | Veronica Frazier           | 12750 Enclave Dr.             | NULL                       | Orlando          | Florida              |    32837 | 407-321-5665 |           0 |
+		|  56 | Kristi      | Lane             | Kristi Lane                | 8753 Fort Jefferson Blvd.     | NULL                       | Orlando          | Florida              |    32822 | 407-459-1119 |           0 |
+		|  57 | Leah        | Harrington       | Leah Harrington            | 3133 Golden Rock Dr.          | NULL                       | Orlando          | Florida              |    32818 | 407-224-8786 |           0 |
+		|  58 | Deanna      | Wade             | Deanna Wade                | 2206 Fairmont Cir.            | NULL                       | Orlando          | Florida              |    32837 | 407-943-2342 |           0 |
+		|  59 | Kimberly    | Curtis           | Kimberly Curtis            | 1626 Lalique Ln.              | NULL                       | Orlando          | Florida              |    32828 | 407-277-5463 |           0 |
+		|  60 | Mabel       | Powell           | Mabel Powell               | 7156 Hiawassee Oak Dr.        | NULL                       | Orlando          | Florida              |    32818 | 407-288-1189 |           0 |
+		|  61 | Julia       | Lucas            | Julia Lucas                | 3001 Greenmount Rd.           | NULL                       | Orlando          | Florida              |    32806 | 407-875-0450 |           0 |
+		|  62 | Gene        | Hamilton         | Gene Hamilton              | 3567 Somerset Park Dr.        | NULL                       | Orlando          | Florida              |    32824 | 407-909-2230 |           0 |
+		|  63 | Lela        | Rose             | Lela Rose                  | 2751 Smithfield Dr.           | NULL                       | Orlando          | Florida              |    32837 | 407-112-9945 |           0 |
+		|  64 | Christina   | Huff             | Christina Huff             | 1202 Toluke Point             | NULL                       | Orlando          | Florida              |    32828 | 407-456-6423 |           0 |
+		|  65 | Amos        | Marshall         | Amos Marshall              | 536 Terrace Cove Way          | NULL                       | Orlando          | Florida              |    32828 | 407-777-1095 |           0 |
+		|  66 | Ethel       | Weber            | Ethel Weber                | 9020 Breezy Meadow Way        | NULL                       | Orlando          | Florida              |    32829 | 407-332-5555 |           0 |
+		|  67 | Willie      | Holt             | Willie Holt                | 8774 Hastings Beach Blvd.     | NULL                       | Orlando          | Florida              |    32829 | 407-171-4346 |           0 |
+		|  68 | Kristin     | Obrien           | Kristin Obrien             | 5944 Providence Crossing Trl. | NULL                       | Orlando          | Florida              |    32829 | 407-885-7768 |           0 |
+		|  69 | Toby        | Canon            | Toby Cannon                | 2000 Derby Glen Dr.           | NULL                       | Orlando          | Florida              |    32837 | 407-094-6173 |           0 |
+		|  70 | Betsy       | Lee              | Betsy Lee                  | 12319 Stone Bark Trl.         | NULL                       | Orlando          | Florida              |    32824 | 407-378-0956 |           0 |
+		|  71 | Jim         | Schwartz         | Jim Schwartz               | 15522 Sahara St.              | NULL                       | Orlando          | Florida              |    32828 | 407-946-9942 |           0 |
+		|  72 | Annie       | Andrews          | Annie Andrews              | 5047 Adair Oak Dr.            | NULL                       | Orlando          | Florida              |    32829 | 407-387-2265 |           0 |
+		|  73 | Olga        | Buchanan         | Olga Buchanan              | 7814 Hidden Hollow Dr.        | NULL                       | Orlando          | Florida              |    32822 | 407-333-8317 |           0 |
+		|  74 | Elvira      | Barton           | Elvira Barton              | 2838 Sand Arbor Cir.          | NULL                       | Orlando          | Florida              |    32824 | 407-127-2963 |           0 |
+		|  75 | Jan         | Walsh            | Jan Walsh                  | 1426 Clarks Summit Ct.        | NULL                       | Orlando          | Florida              |    32828 | 407-428-4007 |           0 |
+		|  76 | Tina        | Holland          | Tina Holland               | 12250 NE Greco Dr.            | NULL                       | Orlando          | Florida              |    32824 | 407-944-3542 |           0 |
+		|  77 | Courtney    | Warner           | Courtney Warner            | 2240 Hillshire Dr.            | NULL                       | Orlando          | Florida              |    32828 | 407-653-4494 |           0 |
+		|  78 | Kyle        | Cross            | Kyle Cross                 | 7524 High Lake Dr.            | NULL                       | Orlando          | Florida              |    32818 | 407-110-5128 |           0 |
+		|  79 | John        | Wick             | John Wick                  | 82 Beaver St                  | Room 1301                  | New York         | New York             |    10005 | 555-555-5555 |           1 |
+		|  80 | Beth        | Holmes           | Beth Holmes                | 2101 Nicholasville Road       | Suite 301                  | Lexington        | Kentucky             |    40503 | 555-234-1235 |           0 |
+		|  81 | Ray         | Hyatt Jr.        | Mr. Ray L. Hyatt Jr.       | 300 Rose Street               | Room 102 Hardymon Building | Lexington        | Kentucky             |    40506 | NULL         |           1 |
+		|  82 | Tony        | Stark            | Tony Stark                 | 200 Park Avenue               | Penthouse                  | New York         | New York             |    10001 | 555-555-3142 |           1 |
+		|  83 | Stephen     | Strange          | Stephen Strange            | 117A Bleecker Street          | NULL                       | New York         | New York             |    10001 | 555-555-4321 |           1 |
+		|  84 | Bob         | Smith            | Bob C. Smith               | 200 Park Avenue               | Apartment 221              | New York         | New York             |    10001 | NULL         |           1 |
+		|  85 | Bob         | Porter           | Bob Porter                 | 1 Dead end Row                | Room 200                   | Dallas           | Texas                |    12347 | NULL         |           1 |
+		|  86 | Bob         | Sydell           | Mr. Bob Sydell             | 1 Dead end Row                | Room 200                   | Dallas           | Texas                |    12347 | NULL         |           1 |
+		|  87 | Bob         | Smith            | Bob C. Smith               | 200 Park Avenue               | NULL                       | Lexington        | Kentucky             |    40507 | NULL         |           1 |
+		|  88 | Bowman      | Wildcat          | Bowman F. Wildcat          | One Avenue of Champions       | NULL                       | Lexington        | Kentucky             |    40506 | NULL         |           1 |
+		|  89 | John        | Borders          | John V. Borders            | 2101 Nicholasville Road       | Suite 106                  | Lexington        | Kentucky             |    40503 | 555-234-3452 |           0 |
+		|  90 | Thomas      | Schwarcz         | Thomas Schwarcz            | 1760 Nicholasville Road       | Suite 202                  | Lexington        | Kentucky             |    40503 | 555-124-3452 |           0 |
+		|  91 | Chris       | Bryant           | Chris N. Bryant            | 2659 Regency Road             | NULL                       | Lexington        | Kentucky             |    40503 | 859-345-3452 |           0 |
+		|  92 | Jitander    | Dudee            | Jitander Dudee             | 2351 Huguenard Drive          | Suite 301                  | Lexington        | Kentucky             |    40503 | 859-342-3447 |           0 |
+		|  93 | Karon       | Magdalene        | Karon Magdalene            | North Eagle Creek Drive       | Suite 205                  | Lexington        | Kentucky             |    40509 | 859-532-3421 |           0 |
+		|  94 | Ryan        | Brown            | Ryan Randall Brown         | West Second Street            | Suite 101                  | Lexington        | Kentucky             |    40508 | 859-494-2131 |           0 |
+		|  95 | Clara       | Auty             | Clara Leer-Lun Auty        | 650 Newtown Pike              | NULL                       | Lexington        | Kentucky             |    40508 | 859-494-2322 |           0 |
+		|  96 | Terry       | McCarty          | Terry L. McCarty           | 650 Newtown Pike              | NULL                       | Lexington        | Kentucky             |    40508 | 859-494-4933 |           0 |
+		|  97 | Griselda    | Akwa             | Griselda Mbong Cheng Akwa  | 553 Glen Arvin Avenue         | NULL                       | Lexington        | Kentucky             |    40508 | 859-494-6722 |           0 |
+		|  98 | Ryan        | Waddles          | Ryan D. Waddles            | 1221 South Broadway           | NULL                       | Lexington        | Kentucky             |    40504 | 859-494-6883 |           0 |
+		|  99 | Kibbe       | Crowley          | Kibbe M. Crowley           | 2351 Huguenard Drive          | Suite 200                  | Lexington        | Kentucky             |    40503 | 859-494-6332 |           0 |
+		| 100 | William     | Banks II         | William R. Banks II        | 1101 Veterans Drive           | NULL                       | Lexington        | Kentucky             |    40502 | 859-494-7342 |           0 |
+		| 101 | Barbara     | Felming-Phillips | Barbara Fleming-Phillips   | South Limestone               | NULL                       | Lexington        | Kentucky             |    40536 | 859-494-7552 |           0 |
+		| 102 | Jaccqueline | Fister           | Jacqueline Carey Fister    | South Limestone               | NULL                       | Lexington        | Kentucky             |    40536 | 859-494-7858 |           0 |
+		| 103 | Courtney    | Schnieders       | Courtney Paige Schnieders  | 2801 Palumbo Drive            | Suite 200                  | Lexington        | Kentucky             |    40509 | 859-494-1122 |           0 |
+		| 104 | Erin        | Cooper           | Erin Louise Cooper         | 2240 Executive Drive          | Suite 102                  | Lexington        | Kentucky             |    40505 | 859-494-1332 |           0 |
+		| 105 | Aaron       | Barnes           | Aaron Barnes               | 1099 Duval Street             | NULL                       | Lexington        | Kentucky             |    40517 | 859-494-6663 |           0 |
+		| 106 | Crystal     | Martin           | Crystal Denise Martin      | 1401 Harrodsburg Road         | Suite B 160                | Lexington        | Kentucky             |    40504 | 859-494-6333 |           0 |
+		| 107 | Joseph      | Gerhardstein     | Joseph E. Gerhardstein     | 1775 Alysheba Way             | Suite 201                  | Lexington        | Kentucky             |    40509 | 859-494-6555 |           0 |
+		| 108 | Diana       | Hayslip          | Diana C. Hayslip           | 1775 Alysheba Way             | Suite 201                  | Lexington        | Kentucky             |    40509 | 859-492-6555 |           0 |
+		| 109 | Neil        | Farris           | Neil R. Farris             | 1401 Harrodsburg Road         | Suite C215                 | Lexington        | Kentucky             |    40504 | 859-565-6555 |           0 |
+		| 110 | Keith       | Applegate        | Keith T. Applegate         | 1775 Alysheba Way             | Suite 201                  | Lexington        | Kentucky             |    40509 | 859-565-6534 |           0 |
+		| 111 | Gordon      | Guthrie Jr.      | Gordon P. Guthrie Jr.      | 1780 Nicholasbille Road       | Suite 602                  | Lexington        | Kentucky             |    40503 | 859-665-6534 |           0 |
+		| 112 | Erin        | Stephens         | Erin A. Drenkhahn Stephens | 2108 Nicholasville Road       | NULL                       | Lexington        | Kentucky             |    40503 | 859-665-1734 |           0 |
+		| 113 | Joanne      | Brown            | Joanne Elizabeth Brown     | South Limestone               | NULL                       | Lexington        | Kentucky             |    40536 | 859-665-1704 |           0 |
+		| 114 | Quentin     | Moore            | Quentin Moore              | 1055 Dove Run Road            | NULL                       | Lexington        | Kentucky             |    40502 | 859-365-1704 |           0 |
+		| 115 | Rachel      | Ashmore          | Rachel Ashmore             | 2312 Alexandria Drive         | NULL                       | Lexington        | Kentucky             |    40504 | 859-344-1704 |           0 |
+		| 116 | Erika       | Boyd             | Erika S. Boyd              | 3085 Lakecrest Circle         | NULL                       | Lexington        | Kentucky             |    40513 | 859-344-1224 |           0 |
+		| 117 | Kelly       | Hawthorn         | Kelly Hawthorne            | 800 Rose Street               | Whitney Hendric            | Lexington        | Kentucky             |    40536 | 859-344-9224 |           0 |
+		+-----+-------------+------------------+----------------------------+-------------------------------+----------------------------+------------------+----------------------+----------+--------------+-------------+
+		117 rows in set (0.01 sec)
+
+Commands:
+
+alter table proj2_database
+add column contact_pref VARCHAR(36) CHARACTER SET utf8 DEFAULT 'DNC' after Phone_number;
+
+alter table proj2_database
+add column email_addr VARCHAR(255) CHARACTER SET utf8 after Phone_number;
+
+Notes: 
+
+Created two columns one per project spec and another to hold email address's if needed.
+The reason the contact_pref is defaulted to 'DNC' is to reduce checks seeing as it will probably be updated. And all contact should be an opt-in not opt-out.
+
+The commands below to update the table are taliored to there specific needs and some do not go through.
+In this case only the earlist record is the one that is used for contact information.
+
+# John Wick
+update proj2_database
+set contact_pref = 'ROBOCALL'
+where id = 2 AND (Phone_number IS NOT NULL AND dupe_record = 0);
+
+# Tony Stark slight issue no email but will get robocalls
+update proj2_database
+set contact_pref = 'ROBOCALL'
+where ID = 3 AND (Phone_number IS NOT NULL AND dupe_record = 0);
+
+# Stephan Strange
+update proj2_database
+set contact_pref = 'MAIL'
+where id = 4 AND (Address_Line_1 IS NOT NULL AND dupe_record = 0);
+
+# Bob's do not have phone numbers, so no update will occur
+update proj2_database
+set contact_pref = 'TEXT'
+where id = 5 AND (Phone_number IS NOT NULL AND dupe_record = 0);
+
+{Some commands not shown, they follow similiar format}
+
+Q4:
+
+Output:
+
+select * from proj2_database;
++-----+-------------+------------------+----------------------------+-------------------------------+----------------------------+------------------+----------------------+----------+--------------+------------+--------------+-------------+
+| ID  | First_Name  | Last_Name        | Full_Customer_Name         | Address_Line_1                | Address_Line_2             | City             | State                | Zip_code | Phone_number | email_addr | contact_pref | dupe_record |
++-----+-------------+------------------+----------------------------+-------------------------------+----------------------------+------------------+----------------------+----------+--------------+------------+--------------+-------------+
+|   1 | Ray         | Hyatt Jr.        | Mr. Ray L. Hyatt Jr.       | 300 Rose Street               | Room 102 Hardymon Building | Lexington        | Kentucky             |    40506 | NULL         | NULL       | DNC          |           0 |
+|   2 | John        | Wick             | John Wick                  | 82 Beaver St                  | Room 1301                  | New York         | New York             |    10005 | 555-555-5555 | NULL       | ROBOCALL     |           0 |
+|   3 | Tony        | Stark            | Tony Stark                 | 200 Park Avenue               | Penthouse                  | New York         | New York             |    10001 | 555-555-3142 | NULL       | DNC          |           0 |
+|   4 | Stephen     | Strange          | Dr. Stephen Strange        | 117A Bleecker Street          | NULL                       | New York         | New York             |    10001 | 555-555-4321 | NULL       | MAIL         |           0 |
+|   5 | Bob         | Smith            | Bob C. Smith               | 200 Park Avenue               | Apartment 221              | New York         | New York             |    10001 | NULL         | NULL       | DNC          |           0 |
+|   6 | Bowman      | Wildcat          | Bowman F. Wildcat          | One Avenue of Champions       | NULL                       | Lexington        | Kentucky             |    40506 | NULL         | NULL       | DNC          |           0 |
+|   7 | Bob         | Smith            | Bob C. Smith               | 200 Park Avenue               | NULL                       | Lexington        | Kentucky             |    40507 | NULL         | NULL       | DNC          |           0 |
+|   8 | Bob         | Porter           | Bob Porter                 | 1 Dead end Row                | Room 200                   | Dallas           | Texas                |    12347 | NULL         | NULL       | DNC          |           0 |
+|   9 | Bob         | Sydell           | Mr. Bob Sydell             | 1 Dead end Row                | Room 200                   | Dallas           | Texas                |    12347 | NULL         | NULL       | DNC          |           0 |
+|  10 | Ronald      | Hembery          | Ronald Hembery             | 36557 Springs Alley           | NULL                       | Sacramento       | California           |    95813 | 916-575-8695 | NULL       | TEXT         |           0 |
+|  11 | Jonathan    | Dowdney          | Jonathan Dowdney           | 70 Luster Pass                | NULL                       | Topeka           | Kansas               |    66622 | 785-313-8159 | NULL       | TEXT         |           0 |
+|  12 | Demetra     | Cobbald          | Demetra Cobbald            | 28 Cherokee Drive             | NULL                       | Abilene          | Texas                |    79699 | 325-319-0457 | NULL       | ROBOCALL     |           0 |
+|  13 | Fraser      | Toombs           | Fraser Toombs              | 87964 Russell Way             | NULL                       | Colorado Springs | Colorado             |    80951 | 719-791-7477 | NULL       | DNC          |           0 |
+|  14 | Cleve       | Sieghart         | Cleve Sieghart             | 69 Fremont Court              | NULL                       | Las Cruces       | New Mexico           |    88006 | 505-573-6996 | NULL       | ROBOCALL     |           0 |
+|  15 | Enriqueta   | Duncanson        | Enriqueta Duncanson        | 15791 Welch Avenue            | NULL                       | San Francisco    | California           |    94164 | 415-401-3991 | NULL       | MAIL         |           0 |
+|  16 | Claribel    | Giraudat         | Claribel Giraudat          | 2124 Cottonwood Center        | NULL                       | Columbia         | South Carolina       |    29203 | 803-812-1116 | NULL       | MAIL         |           0 |
+|  17 | Allison     | Gooke            | Allison Gooke              | 7456 Kings Circle             | NULL                       | Washington       | District of Columbia |    20380 | 202-716-0682 | NULL       | TEXT         |           0 |
+|  18 | Aubrey      | Skamell          | Aubrey Skamell             | 740 Forest Run Drive          | NULL                       | Riverside        | California           |    92519 | 951-951-6384 | NULL       | TEXT         |           0 |
+
+
+
+Q5:
+
+Python program:
+
+import mysql.connector
+from mysql.connector import Error
+
+def create_server_connection(host_name, user_name, user_password, db_name):
+    connection = None
+    try:
+        connection = mysql.connector.connect(
+            host=host_name,
+            user=user_name,
+            passwd=user_password,
+            database=db_name
+        )
+        print("MySQL Database connection successful")
+    except Error as err:
+        print(f"Error: '{err}'")
+
+    return connection
+
+def read_query(connection, query):
+    cursor = connection.cursor()
+    result = None
+    try:
+        cursor.execute(query)
+        result = cursor.fetchall()
+        return result
+    except Error as err:
+        print(f"Error: '{err}'")
+
+host = input("Enter host: ")
+user = input("Enter username: ")
+password = input("Enter password: ")
+connection = create_server_connection(host,user,password,user)
+
+
+q1 = """select concat(First_name, " ", Last_name, " "), Address_Line_1, Address_Line_2, City, State, Zip_code, Full_Customer_Name from proj2_database where dupe_record = 1;"""
+results = read_query(connection, q1)
+
+for i in range(len(results)//2):
+    result = results[i]
+    print("-------------------------------------------------")
+    print(result[0])
+    if result[2] == None: print(result[1])
+    else: print(f"{result[1]}, {result[2]}")
+    print(f"{result[3]}, {result[4]}, {result[5]}")
+    print("\n")
+    print("-------------------------------------------------")
+    print(result[6])
+    print("It is great to meet you again! Your favorite food truck family is growing, looks like you have already met some of our now expanded family. We want you to know that you will now get the same great service from our newly added trucks!\n")
+    print("Looking forward to serving you again!")
+    print("-------------------------------------------------\n\n")
+
+Output:
+-------------------------------------------------
+Ray Hyatt Jr. 
+300 Rose Street, Room 102 Hardymon Building
+Lexington, Kentucky, 40506
+
+
+-------------------------------------------------
+Mr. Ray L. Hyatt Jr.
+It is great to meet you again! Your favorite food truck family is growing, looks like you have already met some of our now expanded family. We want you to know that you will now get the same great service from our newly added trucks!
+
+Looking forward to serving you again!
+-------------------------------------------------
+
+
+-------------------------------------------------
+John Wick 
+82 Beaver St , Room 1301
+New York, New York, 10005
+
+
+-------------------------------------------------
+John Wick
+It is great to meet you again! Your favorite food truck family is growing, looks like you have already met some of our now expanded family. We want you to know that you will now get the same great service from our newly added trucks!
+
+Looking forward to serving you again!
+-------------------------------------------------
+
+
+-------------------------------------------------
+Tony Stark 
+200 Park Avenue, Penthouse
+New York, New York, 10001
+
+
+-------------------------------------------------
+Tony Stark
+It is great to meet you again! Your favorite food truck family is growing, looks like you have already met some of our now expanded family. We want you to know that you will now get the same great service from our newly added trucks!
+
+Looking forward to serving you again!
+-------------------------------------------------
+
+
+-------------------------------------------------
+Stephen Strange 
+117A Bleecker Street
+New York, New York, 10001
+
+
+-------------------------------------------------
+Dr. Stephen Strange
+It is great to meet you again! Your favorite food truck family is growing, looks like you have already met some of our now expanded family. We want you to know that you will now get the same great service from our newly added trucks!
+
+Looking forward to serving you again!
+-------------------------------------------------
+
+
+-------------------------------------------------
+Bob Smith 
+200 Park Avenue , Apartment 221
+New York, New York, 10001
+
+
+-------------------------------------------------
+Bob C. Smith
+It is great to meet you again! Your favorite food truck family is growing, looks like you have already met some of our now expanded family. We want you to know that you will now get the same great service from our newly added trucks!
+
+Looking forward to serving you again!
+-------------------------------------------------
+
+
+-------------------------------------------------
+Bowman Wildcat 
+One Avenue of Champions
+Lexington, Kentucky, 40506
+
+
+-------------------------------------------------
+Bowman F. Wildcat
+It is great to meet you again! Your favorite food truck family is growing, looks like you have already met some of our now expanded family. We want you to know that you will now get the same great service from our newly added trucks!
+
+Looking forward to serving you again!
+-------------------------------------------------
+
+
+-------------------------------------------------
+Bob Smith 
+200 Park Avenue
+Lexington, Kentucky, 40507
+
+
+-------------------------------------------------
+Bob C. Smith
+It is great to meet you again! Your favorite food truck family is growing, looks like you have already met some of our now expanded family. We want you to know that you will now get the same great service from our newly added trucks!
+
+Looking forward to serving you again!
+-------------------------------------------------
+
+
+-------------------------------------------------
+Bob Porter 
+1 Dead end Row , Room 200
+Dallas, Texas, 12347
+
+
+-------------------------------------------------
+Bob Porter
+It is great to meet you again! Your favorite food truck family is growing, looks like you have already met some of our now expanded family. We want you to know that you will now get the same great service from our newly added trucks!
+
+Looking forward to serving you again!
+-------------------------------------------------
+
+
+-------------------------------------------------
+Bob Sydell 
+1 Dead end Row, Room 200
+Dallas, Texas, 12347
+
+
+-------------------------------------------------
+Mr. Bob Sydell
+It is great to meet you again! Your favorite food truck family is growing, looks like you have already met some of our now expanded family. We want you to know that you will now get the same great service from our newly added trucks!
+
+Looking forward to serving you again!
+-------------------------------------------------
+
+Q6:
+
+Python code: #The previous functions still apply to this section of the code, this is specifically for deliverable 6
+	     #To get only new customers I just selected those with id > 39
+
+q2 = """select * from proj2_database where dupe_record = 0 and id > 39"""
+results = read_query(connection, q2)
+
+for result in results:
+    if 'DNC' in result[11]:
+        print(f"DNC: {result[3]}")
+    if 'EMAIL' in result[11]:
+        print(f"EMAIL: {result[3]}, {result[10]}")
+    if 'TEXT' in result[11]:
+        print(f"TEXT: {result[3]}, {result[9]}")
+    if 'ROBOCALL' in result[11]:
+        print(f"ROBOCALL: {result[3]}, {result[9]}")
+    if 'MAIL' in result[11]:
+        if result[5] == None:
+            print(f"MAIL: {result[3]}, {result[4]}, {result[6]}, {result[7]}, {result[8]}")
+        else:
+            print(f"MAIL: {result[3]}, {result[4]}, {result[5]}, {result[6]}, {result[7]}, {result[8]}")
+
+Output: #Only a couple customers had multiple contact methods, these are the last two customers
+
+ROBOCALL: Jamie Grkinich, 714-128-2412
+TEXT: Mary Roberts, 714-675-4455
+MAIL: Jay Cheng, 618 S Ohio Street, Anaheim, California, 92805
+ROBOCALL: Mark Scott Wilson, 714-998-0987
+MAIL: Liza Adams, 1011 N Gilbert Street, Anaheim, California, 92801
+TEXT: Trenton Foster Mueller, 714-123-1579
+ROBOCALL: Veronica Frazier, 407-321-5665
+TEXT: Kristi Lane, 407-459-1119
+MAIL: Leah Harrington, 3133 Golden Rock Dr., Orlando, Florida, 32818
+ROBOCALL: Deanna Wade, 407-943-2342
+MAIL: Kimberly Curtis, 1626 Lalique Ln., Orlando, Florida, 32828
+TEXT: Mabel Powell, 407-288-1189
+ROBOCALL: Julia Lucas, 407-875-0450
+TEXT: Gene Hamilton, 407-909-2230
+MAIL: Lela Rose, 2751 Smithfield Dr., Orlando, Florida, 32837
+ROBOCALL: Christina Huff, 407-456-6423
+MAIL: Amos Marshall, 536 Terrace Cove Way, Orlando, Florida, 32828
+TEXT: Ethel Weber, 407-332-5555
+ROBOCALL: Willie Holt, 407-171-4346
+TEXT: Kristin Obrien, 407-885-7768
+MAIL: Toby Cannon, 2000 Derby Glen Dr., Orlando, Florida, 32837
+ROBOCALL: Betsy Lee, 407-378-0956
+MAIL: Jim Schwartz, 15522 Sahara St., Orlando, Florida, 32828
+TEXT: Annie Andrews, 407-387-2265
+ROBOCALL: Olga Buchanan, 407-333-8317
+TEXT: Elvira Barton, 407-127-2963
+MAIL: Jan Walsh, 1426 Clarks Summit Ct., Orlando, Florida, 32828
+ROBOCALL: Tina Holland, 407-944-3542
+MAIL: Courtney Warner, 2240 Hillshire Dr., Orlando, Florida, 32828
+TEXT: Kyle Cross, 407-110-5128
+TEXT: Beth Holmes, 555-234-1235
+MAIL: John V. Borders, 2101 Nicholasville Road, Suite 106, Lexington, Kentucky, 40503
+TEXT: Thomas Schwarcz, 555-124-3452
+ROBOCALL: Chris N. Bryant, 859-345-3452
+TEXT: Jitander Dudee, 859-342-3447
+MAIL: Karon Magdalene, North Eagle Creek Drive, Suite 205, Lexington, Kentucky, 40509
+ROBOCALL: Ryan Randall Brown, 859-494-2131
+MAIL: Clara Leer-Lun Auty, 650 Newtown Pike, Lexington, Kentucky, 40508
+TEXT: Terry L. McCarty, 859-494-4933
+ROBOCALL: Griselda Mbong Cheng Akwa, 859-494-6722
+TEXT: Ryan D. Waddles, 859-494-6883
+MAIL: Kibbe M. Crowley, 2351 Huguenard Drive, Suite 200, Lexington, Kentucky, 40503
+ROBOCALL: William R. Banks II, 859-494-7342
+MAIL: Barbara Fleming-Phillips, South Limestone, Lexington, Kentucky, 40536
+TEXT: Jacqueline Carey Fister, 859-494-7858
+ROBOCALL: Courtney Paige Schnieders, 859-494-1122
+TEXT: Erin Louise Cooper, 859-494-1332
+MAIL: Aaron Barnes, 1099 Duval Street, Lexington, Kentucky, 40517
+ROBOCALL: Crystal Denise Martin, 859-494-6333
+MAIL: Joseph E. Gerhardstein, 1775 Alysheba Way, Suite 201, Lexington, Kentucky, 40509
+TEXT: Diana C. Hayslip, 859-492-6555
+ROBOCALL: Neil R. Farris, 859-565-6555
+TEXT: Keith T. Applegate, 859-565-6534
+MAIL: Gordon P. Guthrie Jr., 1780 Nicholasbille Road, Suite 602, Lexington, Kentucky, 40503
+ROBOCALL: Erin A. Drenkhahn Stephens, 859-665-1734
+MAIL: Joanne Elizabeth Brown, South Limestone, Lexington, Kentucky, 40536
+TEXT: Quentin Moore, 859-365-1704
+ROBOCALL: Rachel Ashmore, 859-344-1704
+TEXT: Erika S. Boyd, 859-344-1224
+ROBOCALL: Erika S. Boyd, 859-344-1224
+MAIL: Erika S. Boyd, 3085 Lakecrest Circle, Lexington, Kentucky, 40513
+TEXT: Kelly Hawthorne, 859-344-9224
+ROBOCALL: Kelly Hawthorne, 859-344-9224
+MAIL: Kelly Hawthorne, 800 Rose Street, Whitney Hendric, Lexington, Kentucky, 40536
+
+Q7:
+
+command: /usr/bin/mysqldump --column-statistics=0 -h mysql --single-transaction -p username proj2_database > ~/cs405.team10Project2.sql
+
+Q8:
+
+For the set up of the database and the merging it was all done in excel and by hand. Mergeing was easy becuase of the Database schema used in the first project lends it-self pretty well to this one. Then following that schema in general for the extensions. The rest was just making sure that the commands worked as entended. And that the overall schema was kept similar.  
+
+For completing the Python part of this assignment we used mysql.connector, which allows us to access our databse through a Python script and the multilab already has this installed. A couple helper functions were made to make connecting to the database and executing select statements
+easy. The query we made for Q5 isn't the best but using some basic Python programming allowed us to make it work and get the desired output. The same could be said about Q6, the query is not the best but a little bit of programming creates the desired output that is required. For Q6
+only two customers have multiple contact preferences, since it takes a while to modify the table, but they are the very last two customers so you can see that our program can handle that.
